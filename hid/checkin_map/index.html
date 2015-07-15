@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!--Edit the title of the page-->
+    <title>Humanitarian.ID Check-in Map</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.ie.css" />
+    <![endif]-->
+    <!--Switch between the different themes changing the stylesheet below - light-theme.css |dark-theme.css -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic&subset=latin,latin-ext,cyrillic-ext,cyrillic,greek-ext,greek,vietnamese' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="http://d3js.org/d3.v2.js"></script>
+    <style type="text/css">
+    	.here ul {list-style: none;}
+      	.here ul li {list-style: none; margin: 2px;}
+      	body{font-family: 'Open Sans', Helvetica, Arial; font-weight: 400; font-size: 15px; color: #555; background-color: #FFF; margin: 0;}
+		h1{font-weight: 300; font-size: 31px; letter-spacing: -1px; color: #333; line-height: 33px;}
+		h2{font-weight: 700; font-size: 16px; color: #CCC; text-transform: uppercase; margin: 10px 0 0 0; border-top:1px dotted #CCC; padding-top:10px;}
+		p.location{font-weight:700; font-size:28px; text-transform:uppercase; color:#666; line-height:25px; margin:5px 0 0 0;}
+		h3{font-weight: 700; font-size: 12px; color: #CCC; text-transform: uppercase; margin: 10px 0 5px 0;}
+		p{margin: 8px 0 20px 0; line-height: 18px;}
+		a, a:visited{color: #4DA9C3; text-decoration: none;}
+		a:hover{text-decoration: underline;}
+		.wrapper{display: block; padding: 4px 30px 30px 30px;}
+		#logo {display:block; width:100%; margin-top:30px;}
+		.map{background-color:#eee; position: absolute; top: 0; left: 0; bottom: 0; width: 100%; *height:100%;}
+		.sidepanel{background-color:rgba(255,255,255,0.8); position: absolute; top: 0; right: 0; bottom: 0; width:300px; height: 100%; overflow: auto;}
+		
+		.context{font-family: Helvetica, Arial; font-size: 13px; color: #999; padding: 10px 0 0 0;}
+		.subheader{border-bottom: 1px solid #ddd;}
+		.footer{border-top: 1px solid #ddd; margin-top: 30px;}
+		.titleBlock{text-align: right;}
+		#chart, #chart2, #chart3 {margin_top:10px; font-weight:300;}
+		.bar {fill:#4DA9C3; margin:5px 0; stroke:#FFFFFF; stroke-width:0.5px; stroke-opacity:0.5;}
+		.label {font-size:10px; font-weight:400;}
+		
+		/* Here are the styles that makes the template responsive */
+		
+		/*@media only screen and (max-width: 768px) {
+		  .map{position: inherit; height: 400px; width: 100%; display: block;}
+		  .sidepanel{position: inherit; width: 100%;}
+		}
+		
+		@media only screen and (max-width: 480px) {
+		  .map {height: 300px;}
+		}*/
+      
+      
+    </style>
+    <script type="sql/html" id="sql_template">
+      WITH hgridA AS (SELECT CDB_HexagonGrid(ST_Expand(!bbox!, greatest(!pixel_width!,!pixel_height!) * 48), greatest(!pixel_width!,!pixel_height!) * 48) as cell),
+        bigs AS (SELECT * FROM (SELECT ST_Centroid(ST_Collect(i.the_geom_webmercator)) as the_geom_webmercator, count(i.cartodb_id) as points_count, 1 as cartodb_id, array_agg(cartodb_id) AS id_list FROM hgridA, (select * from hid_checkins) i where ST_Intersects(i.the_geom_webmercator, hgridA.cell) GROUP BY hgridA.cell) t WHERE points_count > 100 ),
+        hgridB AS (SELECT CDB_HexagonGrid(ST_Expand(!bbox!, greatest(!pixel_width!,!pixel_height!) * 36), greatest(!pixel_width!,!pixel_height!) * 36) as cell),
+        mids AS (SELECT * FROM (SELECT ST_Centroid(ST_Collect(i.the_geom_webmercator)) as the_geom_webmercator, count(i.cartodb_id) as points_count, 1 as cartodb_id, array_agg(cartodb_id) AS id_list FROM hgridB, (select * from hid_checkins) i where ST_Intersects(i.the_geom_webmercator, hgridB.cell) AND cartodb_id NOT IN (SELECT unnest(id_list) FROM bigs) GROUP BY hgridB.cell) t WHERE points_count > 25 ),
+        hgridC AS (SELECT CDB_HexagonGrid(ST_Expand(!bbox!, greatest(!pixel_width!,!pixel_height!) * 24), greatest(!pixel_width!,!pixel_height!) * 24) as cell),
+        smalls AS (SELECT * FROM (SELECT ST_Centroid(ST_Collect(i.the_geom_webmercator)) as the_geom_webmercator, count(i.cartodb_id) as points_count, 1 as cartodb_id, array_agg(cartodb_id) AS id_list FROM hgridC, (select * from hid_checkins) i where ST_Intersects(i.the_geom_webmercator, hgridC.cell) AND cartodb_id NOT IN (SELECT unnest(id_list) FROM bigs) AND cartodb_id NOT IN (SELECT unnest(id_list) FROM mids) GROUP BY hgridC.cell) t WHERE points_count > 1 )
+        SELECT the_geom_webmercator, 1 points_count, cartodb_id, ARRAY[cartodb_id] as id_list, 'origin' as src, cartodb_id::text cdb_list FROM hid_checkins WHERE cartodb_id NOT IN (select unnest(id_list) FROM bigs) AND cartodb_id NOT IN (select unnest(id_list) FROM mids) AND cartodb_id NOT IN (select unnest(id_list) FROM smalls)
+        UNION ALL
+        SELECT *, 'bigs' as src, array_to_string(id_list, ',') FROM bigs
+        UNION ALL 
+        SELECT *, 'mids' as src, array_to_string(id_list, ',') FROM mids
+        UNION ALL 
+        SELECT *, 'smalls' as src, array_to_string(id_list, ',') FROM smalls
+    </script>
+    <script type="sql/html" id="cartocss_template">
+      #hid_checkins{
+	  marker-width: 12;
+	  marker-fill: #4daac3;
+	  marker-line-width: 1.5;
+	  marker-fill-opacity: 0.8;
+	  marker-line-opacity: 0.8;
+	  marker-line-color: #28859e;
+	  marker-allow-overlap: true;
+	  [src = 'smalls'] {
+	    marker-line-width: 2.5;
+	    marker-width: 24;
+	  } 
+	  [src = 'mids'] {
+	    marker-line-width: 2.5;
+	    marker-width: 62;
+	  } 
+	  [src = 'bigs'] {
+	    marker-line-width: 2.5;
+	    marker-width: 100;
+	  } 
+	}
+	#hid_checkins::labels { 
+	  text-size: 0; 
+	  text-fill: #FFFFFF; 
+	  text-opacity: 0.8;
+	  text-name: [points_count]; 
+	  text-face-name: 'DejaVu Sans Book'; 
+	  text-halo-fill: #FFF; 
+	  text-halo-radius: 0; 
+	  [src = 'smalls'] {
+	    text-size: 12;
+	    text-halo-radius: 0.5;
+	  }
+	  [src = 'mids'] {
+	    text-size: 17;
+	    text-halo-radius: 0.5;
+	  }
+	  [src = 'bigs'] {
+	    text-size: 22;
+	    text-halo-radius: 0.5;
+	  }
+	  text-allow-overlap: true;
+	  [zoom>11]{ text-size: 16; }
+	}
+    </script>
+    
+  </head>
+  <body>
+
+    <div class="map" id="map"></div>
+
+    <div class="sidepanel">
+      <div class="wrapper">
+      	<img src="http://humanitarian.id/wp-content/uploads/2015/02/humanitarian_id_logo_site.png" id="logo"/>
+        <h1>Humanitarian.ID Check-ins</h1>
+        <!--Copy and paste the div below for creating content blocks-->
+        <div class="here-location"></div>
+        <h3 class="here-title">What's here?</h3>
+        <div class="here">
+        	<p>Click on the point clusters for more information about each location.</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&v=3.8"></script>
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
+	
+	<script type="text/javascript">
+		// make the charts in the infowindow
+		function getChart(the_query, svg_id, w, h, column_name, chart_id) { // params are passed in the infowindow functions
+			var w, h
+			var svg = d3.select(chart_id)
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h)
+				.attr("id", svg_id);
+			
+			d3.json(the_query, function(json) {
+				var data = json.rows;
+				var max_count = 0;
+				for (var d in data) {
+					max_count = Math.max(data[d].count, max_count);
+				}
+				var dx = w / max_count;
+				var dy = h / data.length;
+				var column = column_name;
+				// bars
+				var bars = svg.selectAll(".bar")
+					.data(data)
+					.enter()
+					.append("rect")
+					.attr("class", function(d, i) {return "bar " + d[column];})
+					.attr("x", function(d, i) {return 0;})
+					.attr("y", function(d, i) {return dy*i;})
+					.attr("width", function(d, i) {return dx*d.count})
+					.attr("height", dy);
+				// labels
+				var text = svg.selectAll("text")
+					.data(data)
+					.enter()
+					.append("text")
+					.attr("class", function(d, i) {return "label " + d[column];})
+					.attr("x", 5)
+					.attr("y", function(d, i) {return dy*i + 12;})
+					.text( function(d) {return d[column] + " — " + d.count + " check-ins";})
+					.call(wrap, w);
+				// text wrap
+				function wrap(text, width) {
+				  text.each(function() {
+				    var text = d3.select(this),
+				        words = text.text().split(/\s+/).reverse(),
+				        word,
+				        line = [],
+				        lineNumber = 1,
+				        lineHeight = 12, // ems
+				      	dy=0;
+				        y = text.attr("y"),
+				        //dy = parseFloat(text.attr("dy")),
+				        tspan = text.text(null).append("tspan").attr("x", 5).attr("y", y).attr("dy", dy);
+				    while (word = words.pop()) {
+				      line.push(word);
+				      tspan.text(line.join(" "));
+				      if (tspan.node().getComputedTextLength() > width) {
+				        line.pop();
+				        tspan.text(line.join(" "));
+				        line = [word];
+				        dy = lineHeight * lineNumber;
+				        lineNumber= lineNumber+1;
+				        tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", dy).text(word);
+				      }
+				    }
+				  });
+				} // end text wrap
+			});
+		} // end getChart
+	
+      // global vars
+      var map;
+	  var accountname = 'fis-ocha';
+	  
+	  // interactive features
+      function addCursorInteraction(layer) {
+        var hovers = [];
+		//on hover functions
+        layer.bind('featureOver', function(e, latlon, pxPos, data, layer) {
+          hovers[layer] = 1;
+          if(_.any(hovers)) {
+            $('#map').css('cursor', 'pointer');
+          }
+        });
+		// off hover functions
+        layer.bind('featureOut', function(m, layer) {
+          hovers[layer] = 0;
+          if(!_.any(hovers)) {
+            $('#map').css('cursor', 'auto');
+          }
+        });
+
+		// on feature click functions
+        layer.bind('featureClick', function(e, latlon, pxPos, data, layer) {
+          var list = data['cdb_list'].split(',');
+         
+          getfirstlocation = list[0];
+          var location_query = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT * FROM hid_checkins WHERE cartodb_id = " + getfirstlocation;
+          $('.here-location').html("");
+          $('.here-title').html("");
+          $('.here').html("");
+          
+          // get the location
+          $.get(location_query, function(subdata) {
+          	var thelocation = subdata.rows[0].location_country;
+          	$('.here-location').append("<h2>Location</h2><p class='location'>"+thelocation+"</p>");
+          	if (list.length > 1){ 
+	            $('.here-location').append(list.length+" check-ins");
+	        } else {
+	          	$('.here-location').append(list.length+" check-in");
+	        }
+	        
+	        // get the organizations
+          	var org_query = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT COUNT(DISTINCT org_name) FROM hid_checkins WHERE location_country = \'" + thelocation + "\'";
+			$.get(org_query, function(subdata2) {
+				var org_count = subdata2.rows[0].count;
+				if (org_count != 1) {
+					$('.here-location').append("<h2>Organisations</h2><p>There have been check-ins from "+ org_count +" different organisations working in " + thelocation + ".</p>");
+				}
+				else {
+					$('.here-location').append("<h2>Organisations</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+				}
+				var width = $(".here-location").width();
+				var top_orgs = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT org_name, COUNT(org_name) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND org_name != \'null\' AND org_name != \'Other\' AND org_name != \'\' GROUP BY org_name ORDER BY COUNT(org_name) DESC LIMIT 10";
+				$('.here-location').append('<h3>Most Organisations:</h3><div id="chart"></div>');
+				$.get(top_orgs, function(subdata3) {
+						var org_number = parseInt(subdata3.total_rows)*40;
+						getChart(top_orgs, "org_chart", width, org_number, "org_name", "#chart"); // (the JSON URL, id for the SVG, width, height, column selected in table, id of the chart)
+					});
+			});
+			
+			// get the roles
+			var role_query = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT COUNT(DISTINCT role) FROM hid_checkins WHERE location_country = \'" + thelocation + "\'";
+			$.get(role_query, function(subdata4) {
+				var role_count = subdata4.rows[0].count;
+				if (role_count > 1) {
+					$('.here-location').append("<h2>Role</h2><p>There have been check-ins from "+ role_count +" different roles working in " + thelocation + ".</p>");
+					$('.here-location').append('<h3>Top Roles</h3><div id="chart2"></div>');
+				}
+				var width = $(".here-location").width();
+				var top_role = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT role, COUNT(role) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND role != \'null\' AND role != \'Other\' AND role != \'\' GROUP BY role ORDER BY COUNT(role) DESC LIMIT 10";
+				$.get(top_role, function(subdata5) {
+						var role_number = parseInt(subdata5.total_rows)*40;
+						getChart(top_role, "role_chart", width, role_number, "role", "#chart2");
+					});
+			});
+			
+			// get the country of origin
+			var origin_query = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT COUNT(DISTINCT origin_location) FROM hid_checkins WHERE location_country = \'" + thelocation + "\'";
+			$.get(origin_query, function(subdata6) {
+				var origin_count = subdata6.rows[0].count;
+				if (origin_count > 1) {
+					$('.here-location').append("<h2>Country of Origin</h2><p>There have been check-ins from "+ origin_count +" different countries working in " + thelocation + ".</p>");
+					$('.here-location').append('<h3>Top Origin Countries:</h3><div id="chart3"></div>');
+				}
+				else {
+					$('.here-location').append("<h2>Country of Origin</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+				}
+				var width = $(".here-location").width();
+				var top_origin = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT origin_location, COUNT(origin_location) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND origin_location != \'null\' AND origin_location != \'None\' AND origin_location != \'none\' AND origin_location != \'Other\' AND origin_location != \'\' GROUP BY origin_location ORDER BY COUNT(origin_location) DESC LIMIT 10";
+				$.get(top_origin, function(subdata7) {
+						var origin_number = parseInt(subdata7.total_rows)*40;
+						getChart(top_origin, "origin_chart", width, origin_number, "origin_location", "#chart3");
+					});
+			}); // end get
+          	
+          });
+          
+        });
+
+      } // end addCursorInteraction
+
+      function main() {
+
+        // create leaflet map
+        map = L.map('map', { 
+          zoom: 3,
+		  center: [13, 90],
+		  maxZoom: 12,
+		  minZoom: 3
+        });
+
+        // add a base layer
+        L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        	attribution: '© <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors © <a href= \"http://cartodb.com/attributions\">CartoDB</a>'
+        }).addTo(map);
+
+        // global vars
+        var baseSql = $('#sql_template').html();
+        var cartoCss = $('#cartocss_template').html();
+        
+        // add cartodb layer with one sublayer
+        cartodb.createLayer(map, {
+          user_name: accountname,
+          cartodb_logo: false,
+          type: 'cartodb',
+          sublayers: [{
+             sql: baseSql,
+             cartocss: cartoCss,
+             interactivity: 'cartodb_id, cdb_list'
+          }]
+        })
+        .addTo(map)
+        .done(function(layer) {
+          var sublayer = layer.getSubLayer(0);
+          sublayer.setInteraction(true);
+          addCursorInteraction(sublayer);
+        });
+
+
+      }
+
+      // you could use $(window).load(main);
+      window.onload = main; 
+    </script>
+
+  </body>
+      </html>
