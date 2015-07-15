@@ -261,7 +261,7 @@
 					$('.here-organization').append("<h2>Organisations</h2><p>There have been check-ins from "+ org_count +" different organisations working in " + thelocation + ".</p>");
 				}
 				else {
-					$('.here-organization').append("<h2>Organisations</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+					$('.here-organization').append("<h2>Organisations</h2><p>There has been 1 check-in in " + thelocation + ".</p>");
 				}
 				var width = $(".here-organization").width();
 				var top_orgs = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT org_name, COUNT(org_name) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND org_name != \'null\' AND org_name != \'Other\' AND org_name != \'\' GROUP BY org_name ORDER BY COUNT(org_name) DESC LIMIT 10";
@@ -297,7 +297,7 @@
 					$('.here-origin-chart').append('<h3>Top Origin Countries:</h3><div id="chart3"></div>');
 				}
 				else {
-					$('.here-origin').append("<h2>Country of Origin</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+					$('.here-origin').append("<h2>Country of Origin</h2><p>There has been 1 check-in in " + thelocation + ".</p>");
 				}
 				var width = $(".here-origin").width();
 				var top_origin = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT origin_location, COUNT(origin_location) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND origin_location != \'null\' AND origin_location != \'None\' AND origin_location != \'none\' AND origin_location != \'Other\' AND origin_location != \'\' GROUP BY origin_location ORDER BY COUNT(origin_location) DESC LIMIT 10";
