@@ -37,19 +37,7 @@
 		#chart, #chart2, #chart3 {margin_top:10px; font-weight:300;}
 		.bar {fill:#4DA9C3; margin:5px 0; stroke:#FFFFFF; stroke-width:0.5px; stroke-opacity:0.5;}
 		.label {font-size:10px; font-weight:400;}
-		
-		/* Here are the styles that makes the template responsive */
-		
-		/*@media only screen and (max-width: 768px) {
-		  .map{position: inherit; height: 400px; width: 100%; display: block;}
-		  .sidepanel{position: inherit; width: 100%;}
-		}
-		
-		@media only screen and (max-width: 480px) {
-		  .map {height: 300px;}
-		}*/
-      
-      
+	
     </style>
     <script type="sql/html" id="sql_template">
       WITH hgridA AS (SELECT CDB_HexagonGrid(ST_Expand(!bbox!, greatest(!pixel_width!,!pixel_height!) * 48), greatest(!pixel_width!,!pixel_height!) * 48) as cell),
@@ -124,6 +112,12 @@
         <h1>Humanitarian.ID Check-ins</h1>
         <!--Copy and paste the div below for creating content blocks-->
         <div class="here-location"></div>
+        <div class="here-origin"></div>
+        <div class="here-origin-chart"></div>
+        <div class="here-organization"></div>
+        <div class="here-organization-chart"></div>
+        <div class="here-role"></div>
+        <div class="here-role-chart"></div>
         <h3 class="here-title">What's here?</h3>
         <div class="here">
         	<p>Click on the point clusters for more information about each location.</p>
@@ -171,8 +165,16 @@
 					.attr("class", function(d, i) {return "label " + d[column];})
 					.attr("x", 5)
 					.attr("y", function(d, i) {return dy*i + 12;})
-					.text( function(d) {return d[column] + " — " + d.count + " check-ins";})
+					.text( function(d) {
+						if (d.count > 1) {
+							return d[column] + " — " + d.count + " check-ins";
+						}
+						else {
+							return d[column] + " — " + d.count + " check-in";
+						}
+					})
 					.call(wrap, w);
+					
 				// text wrap
 				function wrap(text, width) {
 				  text.each(function() {
@@ -232,6 +234,12 @@
           getfirstlocation = list[0];
           var location_query = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT * FROM hid_checkins WHERE cartodb_id = " + getfirstlocation;
           $('.here-location').html("");
+          $('.here-organization').html("");
+          $('.here-organization-chart').html("");
+          $('.here-role').html("");
+          $('.here-role-chart').html("");
+          $('.here-origin').html("");
+          $('.here-origin-chart').html("");
           $('.here-title').html("");
           $('.here').html("");
           
@@ -250,14 +258,14 @@
 			$.get(org_query, function(subdata2) {
 				var org_count = subdata2.rows[0].count;
 				if (org_count != 1) {
-					$('.here-location').append("<h2>Organisations</h2><p>There have been check-ins from "+ org_count +" different organisations working in " + thelocation + ".</p>");
+					$('.here-organization').append("<h2>Organisations</h2><p>There have been check-ins from "+ org_count +" different organisations working in " + thelocation + ".</p>");
 				}
 				else {
-					$('.here-location').append("<h2>Organisations</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+					$('.here-organization').append("<h2>Organisations</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
 				}
-				var width = $(".here-location").width();
+				var width = $(".here-organization").width();
 				var top_orgs = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT org_name, COUNT(org_name) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND org_name != \'null\' AND org_name != \'Other\' AND org_name != \'\' GROUP BY org_name ORDER BY COUNT(org_name) DESC LIMIT 10";
-				$('.here-location').append('<h3>Most Organisations:</h3><div id="chart"></div>');
+				$('.here-organization-chart').append('<h3>Most Organisations:</h3><div id="chart"></div>');
 				$.get(top_orgs, function(subdata3) {
 						var org_number = parseInt(subdata3.total_rows)*40;
 						getChart(top_orgs, "org_chart", width, org_number, "org_name", "#chart"); // (the JSON URL, id for the SVG, width, height, column selected in table, id of the chart)
@@ -269,10 +277,10 @@
 			$.get(role_query, function(subdata4) {
 				var role_count = subdata4.rows[0].count;
 				if (role_count > 1) {
-					$('.here-location').append("<h2>Role</h2><p>There have been check-ins from "+ role_count +" different roles working in " + thelocation + ".</p>");
-					$('.here-location').append('<h3>Top Roles</h3><div id="chart2"></div>');
+					$('.here-role').append("<h2>Role</h2><p>There have been check-ins from "+ role_count +" different roles working in " + thelocation + ".</p>");
+					$('.here-role-chart').append('<h3>Top Roles</h3><div id="chart2"></div>');
 				}
-				var width = $(".here-location").width();
+				var width = $(".here-role").width();
 				var top_role = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT role, COUNT(role) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND role != \'null\' AND role != \'Other\' AND role != \'\' GROUP BY role ORDER BY COUNT(role) DESC LIMIT 10";
 				$.get(top_role, function(subdata5) {
 						var role_number = parseInt(subdata5.total_rows)*40;
@@ -285,13 +293,13 @@
 			$.get(origin_query, function(subdata6) {
 				var origin_count = subdata6.rows[0].count;
 				if (origin_count > 1) {
-					$('.here-location').append("<h2>Country of Origin</h2><p>There have been check-ins from "+ origin_count +" different countries working in " + thelocation + ".</p>");
-					$('.here-location').append('<h3>Top Origin Countries:</h3><div id="chart3"></div>');
+					$('.here-origin').append("<h2>Country of Origin</h2><p>There have been check-ins from "+ origin_count +" different countries working in " + thelocation + ".</p>");
+					$('.here-origin-chart').append('<h3>Top Origin Countries:</h3><div id="chart3"></div>');
 				}
 				else {
-					$('.here-location').append("<h2>Country of Origin</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
+					$('.here-origin').append("<h2>Country of Origin</h2><p>There has been 1 checkin in " + thelocation + ".</p>");
 				}
-				var width = $(".here-location").width();
+				var width = $(".here-origin").width();
 				var top_origin = "http://" + accountname + ".cartodb.com/api/v1/sql?q=SELECT origin_location, COUNT(origin_location) FROM hid_checkins WHERE location_country = \'" + thelocation + "\' AND origin_location != \'null\' AND origin_location != \'None\' AND origin_location != \'none\' AND origin_location != \'Other\' AND origin_location != \'\' GROUP BY origin_location ORDER BY COUNT(origin_location) DESC LIMIT 10";
 				$.get(top_origin, function(subdata7) {
 						var origin_number = parseInt(subdata7.total_rows)*40;
