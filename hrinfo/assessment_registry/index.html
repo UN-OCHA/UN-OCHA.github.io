@@ -12,30 +12,30 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 	<style>
 		@import url(https://fonts.googleapis.com/css?family=Exo:100,200,300,400,500,600,700); /*adds the google fonts from HR.info*/
-    html, body {height: 100%; margin: 0; padding: 0; width: 100%; font-family:Exo, Arial, Helvetica, san-serif;}
-    div {box-sizing:border-box;}
-    #map {height:100%; width: 100%;}
-    #filters {width:300px; position:absolute; right:0; top:0; height:100%; z-index: 1; background:rgba(255,255,255,.8); box-sizing:border-box; padding:45px 25px 25px 25px;}
-    #filters h3 {margin:20px 0 5px 0; font-size:12px; line-height: 19px; text-transform:uppercase; color:rgb(150,150,150); font-family:Arial, Tahoma, san-serif;}
-    #filters select, #filters input {font-size:14px; line-height:25px; vertical-align: middle; height:30px; box-shadow:none; border:0; color:rgb(50,50,50); border-radius: 4px; width:255px; border:solid 1px rgba(0,0,0,.1);}
-    #filters select:hover, #filters #reset:hover, #filters input:hover {box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.2);}
-    #filters select:focus, #filters input:focus {box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.6);}
-    #filters select option {margin:5px 0; font-size:10px;}
-    #filters label {font-size:12px; text-align:left; color:rgb(100,100,100);}
-    #filters input {box-sizing:border-box; padding-left:5px;}
-    #filters input[type='checkbox'] {height:20px; left:0; width:auto;}
-    #filters #reset {position:absolute; right:20px; margin-top:2px;}
-    #count-window {position:absolute; width:150px; height:30px; background-color:#FFFFFF; left:50px; top:20px; z-index: 1000; border-radius: 4px;}
-    #count-window input {width:100%; height:100%; border-radius:4px; border:0; padding-left:5px; box-sizing: border-box; color:#000000; background:none;}
-    div.cartodb-searchbox {width:255px; box-shadow: none;}
-    div.cartodb-searchbox input.text {width:203px;}
-    div.cartodb-popup-header {background-color:red;}
-    div.cartodb-popup-header h4 {color:#FFFFFF;}
-    ::-webkit-input-placeholder {font-size:11px; font-style:italic; color:rgb(150,150,150);}
+    	html, body {height: 100%; margin: 0; padding: 0; width: 100%; font-family:Exo, Arial, Helvetica, san-serif;}
+    	div {box-sizing:border-box;}
+      	#map {height:100%; width: 100%;}
+      	#filters {width:300px; position:absolute; right:0; top:0; height:100%; z-index: 1; background:rgba(255,255,255,.8); box-sizing:border-box; padding:45px 25px 25px 25px;}
+      	#filters h3 {margin:20px 0 5px 0; font-size:12px; line-height: 19px; text-transform:uppercase; color:rgb(150,150,150); font-family:Arial, Tahoma, san-serif;}
+      	#filters select, #filters input {font-size:14px; line-height:25px; vertical-align: middle; height:30px; box-shadow:none; border:0; color:rgb(50,50,50); border-radius: 4px; width:255px; border:solid 1px rgba(0,0,0,.1);}
+      	#filters select:hover, #filters #reset:hover, #filters input:hover {box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.2);}
+      	#filters select:focus, #filters input:focus {box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.6);}
+      	#filters select option {margin:5px 0; font-size:10px;}
+      	#filters label {font-size:12px; text-align:left; color:rgb(100,100,100);}
+      	#filters input {box-sizing:border-box; padding-left:5px;}
+      	#filters input[type='checkbox'] {height:20px; left:0; width:auto;}
+      	#filters #reset {position:absolute; right:20px; margin-top:2px;}
+      	#count-window {position:absolute; width:150px; height:30px; background-color:#FFFFFF; left:50px; top:20px; z-index: 1000; border-radius: 4px;}
+      	#count-window input {width:100%; height:100%; border-radius:4px; border:0; padding-left:5px; box-sizing: border-box; color:#000000; background:none;}
+      	div.cartodb-searchbox {width:255px; box-shadow: none;}
+      	div.cartodb-searchbox input.text {width:203px;}
+      	div.cartodb-popup-header {background-color:red;}
+      	div.cartodb-popup-header h4 {color:#FFFFFF;}
+      	::-webkit-input-placeholder {font-size:11px; font-style:italic; color:rgb(150,150,150);}
 		:-moz-placeholder { /* Firefox 18- */font-size:11px; font-style:italic; color:rgb(150,150,150);}
 		::-moz-placeholder {  /* Firefox 19+ */ font-size:11px; font-style:italic; color:rgb(150,150,150);}
 		:-ms-input-placeholder {font-size:11px; font-style:italic; color:rgb(150,150,150);}
-    #custom-infowindow {overflow-y:scroll; width:0; height:100%; box-shadow: inset -7px 0 9px -7px rgba(0,0,0,0.4); box-sizing: border-box; background:rgba(255,255,255,0.9); position:absolute; left:0px; top:0; padding:0;}
+      	#custom-infowindow {overflow-y:scroll; width:0; height:100%; box-shadow: inset -7px 0 9px -7px rgba(0,0,0,0.4); box-sizing: border-box; background:rgba(255,255,255,0.9); position:absolute; left:0px; top:0; padding:0;}
 		#close-window {display:none; line-height:20px; font-weight:bold; width:20px; text-align:center; vertical-align:middle; background-color:#FFFFFF; color:rgb(150,150,150); text-decoration:none; border:2px solid rgb(150,150,150); border-radius:20px; font-size:12px; position:absolute; top:20px; left:0px; z-index:2000;}
 		#close-window:hover, #close-window:focus {background-color:rgb(150,150,150); color:#FFFFFF; box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.2);}
 		div#wrapper {opacity:0; display:none; width:100%;}
@@ -89,8 +89,8 @@
   	
   	<!--the count window-->
   	<div id="count-window">
-		  <input id="thecount"/>
-	  </div>
+		<input id="thecount"/>
+	</div>
   	
   	<div id="filters">
   		
@@ -103,7 +103,7 @@
   		</div><!--end infowindow template-->
   		
   		<form>
-        <h3>Filter by Country</h3>
+        	<h3>Filter by Country</h3>
     		<select id="countrynames">
     			<option selected disabled value="clear">Select a Country</option>
     			<option value="Afghanistan">Afghanistan</option>
@@ -143,7 +143,7 @@
     			<option value="Yemen">Yemen</option>	
     			<option value="Zimbabwe">Zimbabwe</option>
     		</select>
-        <h3>Filter by Global Cluster</h3>
+        	<h3>Filter by Global Cluster</h3>
     		<select id="clusternames">
     			<option selected disabled value="clear">Select Global Cluster</option>
     			<option value="Camp Coordination / Management">Camp Coordination / Management</option>
@@ -194,13 +194,13 @@
  
     <script>
 
-    function main() {
+      function main() {
       	// creates the visualization
-		    var map = new L.Map('map', {
-			    zoom: 3,
-		  	    center: [13, 50],
-		  	    maxZoom: 12
-		    });
+		var map = new L.Map('map', {
+			zoom: 3,
+		  	center: [13, 50],
+		  	maxZoom: 12
+		});
 
         // base layer
         L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
@@ -486,8 +486,7 @@
     		if (organization == null){
     			organization = "clear";
     		}
-    		var organizationName = organization != '' ? "org_label ILIKE \'%" + organization + "%\' OR org_acronym ILIKE \'%" + organization + "%\'": '';
-
+    		var organizationName = organization != '' ? "(org_label ILIKE \'%" + organization + "%\' OR org_acronym ILIKE \'%" + organization + "%\')": '';
     		var the_dates = eval($('#datechange').val());
     		if (the_dates == null){
     			the_dates = "clear";
