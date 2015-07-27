@@ -618,7 +618,7 @@
         	$("#download option:selected").each(function() {
          		fileformat = $(this).val();
          	});
-    		var download_data = encodeURI('http://' + cartodb_user + '.cartodb.com/api/v2/sql?format=' + fileformat + '&q=' + query);
+    		var download_data = encodeURI('https://' + cartodb_user + '.cartodb.com/api/v2/sql?format=' + fileformat + '&q=' + query);
     		window.location.href = download_data;
             $('#download').val("clear");
         });
