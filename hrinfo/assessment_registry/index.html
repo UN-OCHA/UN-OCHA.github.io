@@ -228,7 +228,8 @@
 			
         // add cartodb layer
         cartodb.createLayer(map, vizjson, {
-        	cartodb_logo:false
+        	cartodb_logo:false,
+		https: true
         })
         .addTo(map)
         // add the callback function
