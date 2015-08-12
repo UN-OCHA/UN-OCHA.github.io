@@ -218,7 +218,7 @@
 		
 		// get the number of items
 		function getmastercount() {
-    		$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT count(*) FROM humanitarian_response', function(data) {
+    		$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT count(Distinct(id)) FROM humanitarian_response', function(data) {
 		  		$.each(data.rows, function(key, val) {
 		    		var the_count = data.rows[0]["count"];
 		    		$("#thecount").val('# of Assessments: ' + the_count);
@@ -504,7 +504,7 @@
     		console.log(query);
     		
     		// counts the number of assessments depending on the filter results
-    		var count = "SELECT COUNT(*) FROM humanitarian_response WHERE " + select;
+    		var count = "SELECT COUNT(Distinct(id)) FROM humanitarian_response WHERE " + select;
     		count = encodeURI(count);
     		$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q='+count, function(data) {
 			  $.each(data.rows, function(key, val) {
