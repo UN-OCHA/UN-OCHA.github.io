@@ -55,7 +55,7 @@
 		.item .content p span.download_button:hover, .item .content p span.download_button:focus {background-color:rgb(227,143,24); box-shadow:0px 0px 4px 2px rgba(0, 0, 0, 0.2); cursor:pointer;}
 		.item .content p span.download_button a {display:block; width:100%; height:100%; color:#FFFFFF; text-decoration:none;}
 	</style>
-	
+
 	<!-- HTML template for the infowindow-->
 	<script type="text/x-custom-template" id="infowindowtemplate">
 		<div class="item">
@@ -82,18 +82,18 @@
 			</div>
 		</div>
 	</script>
-	
+
   </head>
-  
+
   <body>
-  	
+
   	<!--the count window-->
   	<div id="count-window">
 		<input id="thecount"/>
 	</div>
-  	
+
   	<div id="filters">
-  		
+
   		<!--start infowindow template-->
   		<a href="#" id="close-window">X</a>
   		<div id="custom-infowindow">
@@ -101,7 +101,7 @@
   				<!--the infowindow template items will be inserted here-->
   			</div>
   		</div><!--end infowindow template-->
-  		
+
   		<form>
         	<h3>Filter by Country</h3>
     		<select id="countrynames">
@@ -119,28 +119,28 @@
     			<option value="Iraq">Iraq</option>
     			<option value="Jordan">Jordan</option>
     			<option value="Kenya">Kenya</option>
-    			<option value="Lebanon">Lebanon</option>	
-    			<option value="Liberia">Liberia</option>	
-    			<option value="Mali">Mali</option>	
+    			<option value="Lebanon">Lebanon</option>
+    			<option value="Liberia">Liberia</option>
+    			<option value="Mali">Mali</option>
     			<option value="Mauritania">Mauritania	</option>
-    			<option value="Nepal">Nepal</option>	
-    			<option value="Nigeria">Nigeria</option>	
-    			<option value="occupied Palestinian territory">occupied Palestinian territory</option>	
-    			<option value="Pakistan">Pakistan</option>	
-    			<option value="Philippines">Philippines</option>	
-    			<option value="Senegal">Senegal</option>	
-    			<option value="Sierra Leone">Sierra Leone</option>	
-    			<option value="Solomon Islands">Solomon Islands</option>	
-    			<option value="Somalia">Somalia</option>	
-    			<option value="South Sudan">South Sudan</option>	
-    			<option value="Sudan">Sudan</option>	
+    			<option value="Nepal">Nepal</option>
+    			<option value="Nigeria">Nigeria</option>
+    			<option value="occupied Palestinian territory">occupied Palestinian territory</option>
+    			<option value="Pakistan">Pakistan</option>
+    			<option value="Philippines">Philippines</option>
+    			<option value="Senegal">Senegal</option>
+    			<option value="Sierra Leone">Sierra Leone</option>
+    			<option value="Solomon Islands">Solomon Islands</option>
+    			<option value="Somalia">Somalia</option>
+    			<option value="South Sudan">South Sudan</option>
+    			<option value="Sudan">Sudan</option>
     			<option value="Syrian Arab Republic">Syrian Arab Republic</option>
     			<option value="Tonga">Tonga</option>
-    			<option value="Turkey">Turkey</option>	
-    			<option value="Uganda">Uganda</option>	
+    			<option value="Turkey">Turkey</option>
+    			<option value="Uganda">Uganda</option>
     			<option value="Ukraine">Ukraine</option>
     			<option value="Vanuatu">Vanuatu</option>
-    			<option value="Yemen">Yemen</option>	
+    			<option value="Yemen">Yemen</option>
     			<option value="Zimbabwe">Zimbabwe</option>
     		</select>
         	<h3>Filter by Global Cluster</h3>
@@ -175,7 +175,6 @@
     		<h3>Filter by Organization Name</h3>
     		<input id="organization" placeholder="e.g. UNICEF or United Nations Children's Fund" />
     		<br/><br/>
-    		<input type="checkbox" id="multiquery" /><label for="multi-query"> Enable Multiple Filters</label>
     		<button type="reset" id="reset">Reset</button>
     		<br/><br/>
     		<h3>Download Data</h3>
@@ -189,9 +188,9 @@
     		</select>
     	</form>
     </div>
-    
+
     <div id="map"></div> <!--the container for the visualization-->
- 
+
     <script>
 
       function main() {
@@ -206,7 +205,7 @@
         L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
         	attribution: '© <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors © <a href= \"http://cartodb.com/attributions\">CartoDB</a>'
         }).addTo(map);
-		
+
 		// global vars
 		var sublayer;
 		var sublayer2;
@@ -214,8 +213,8 @@
 		var vizjson = 'https://fis-ocha.cartodb.com/api/v2/viz/4fc33e6a-2655-11e5-9a6d-0e9d821ea90d/viz.json';
 		var sql = new cartodb.SQL({user:cartodb_user});
 		var query = "SELECT * FROM humanitarian_response";
-		
-		
+
+
 		// get the number of items
 		function getmastercount() {
     		$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT count(Distinct(id)) FROM humanitarian_response', function(data) {
@@ -225,7 +224,7 @@
 		  		});
 			});
 		}
-			
+
         // add cartodb layer
         cartodb.createLayer(map, vizjson, {
         	cartodb_logo:false,
@@ -237,22 +236,22 @@
         	// allows interaction with map and sets the available fields from cartodb
         	layer.setInteraction(true);
         	layer.setInteractivity('cartodb_id, id, the_geom, label, cluster_label, org_label, theme_label, disasters_label, operation_label, operation_status, operation_url, location_id, location_label, country, geoid, geo_pcode, geo_iso_code, geo_admin_level, other_location, subject, methodology, key_findings, date_start, date_end, date_start_text, date_end_text, date_timezone, frequency, status, report_id, report_filename, report_filesize, report_url, questionnaire_id, questionnaire_filename, questionnaire_filesize, questionnaire_url, data_upload_id, data_upload_filename, data_upload_filesize, data_upload_url, assessment_url, date_created, last_modified');
-        	
+
         	// uncomment the below to enable the default cartodb infowindow
         	//cdb.vis.Vis.addInfowindow(map, layer, ['cartodb_id', 'id', 'label', 'cluster_label', 'org_label', 'theme_label', 'disasters_label', 'operation_label', 'operation_status', 'operation_url', 'location_id', 'location_label', 'country', 'geoid', 'geo_pcode', 'geo_iso_code', 'geo_admin_level', 'other_location', 'subject', 'methodology', 'key_findings', 'date_start', 'date_end', 'date_start_text', 'date_end_text', 'date_timezone', 'frequency', 'status', 'report_id', 'report_filename', 'report_filesize', 'report_url', 'questionnaire_id', 'questionnaire_filename', 'questionnaire_filesize', 'questionnaire_url', 'data_upload_id', 'data_upload_filename', 'data_upload_filesize', 'data_upload_url', 'assessment_url', 'date_created', 'last_modified'], {
         		//infowindowTemplate: $('#infowindow_template').html() //uncomment this to use a custom template with the default cartodb infowindow
         	//});
-        	
+
         	// Adds the counter in the top left corner. enters the total number of items on load
         	$("#thecount").prop('disabled', true);
-			getmastercount(); 
-			
+			getmastercount();
+
         	// adds the cartodb search bar to the top right
         	var searchbar = cdb.vis.Overlay.create('search', map.viz, {});
         	searchbar.show();
         	$('#map').append(searchbar.render().el);
         	$('.cartodb-searchbox').find('input.text').attr('placeholder', 'Location (e.g. Kathmandu)');
-        	
+
         	//defines the sublayer
         	sublayer = layer.getSubLayer(0);
         	layer.createSubLayer({
@@ -265,11 +264,11 @@
 					'}'
 			});
 			sublayer2 = layer.getSubLayer(1);
-        	
+
         	//defines the infowindowtemplate
         	var infowindowtemplate = $('#infowindowtemplate').html();
-        	
-        	// sublayer event handlers  			
+
+        	// sublayer event handlers
 			sublayer.on('load', function(){
             	console.log('loaded');
           	})
@@ -278,30 +277,30 @@
           	})
 			.on('featureClick', function(e, latlng, pos, data) {
         		console.log(data);
-        		
+
         		//sets the cartocss for each point when clicked
         		sublayer.setCartoCSS('#humanitarian_response {' +
 				  'marker-fill: #F84F40;' +
 				  'marker-width: 10;' +
 				  'marker-line-color: #FFF;' +
-				  'marker-line-width: 1.5;' + 
-				  'marker-line-opacity: 0.4;' + 
-				  'marker-fill-opacity: 0.8;' + 
-				  'marker-comp-op: multiply;' + 
-				  'marker-type: ellipse;' + 
-				  'marker-placement: point;' + 
-				  'marker-allow-overlap: true;' + 
-				  'marker-clip: false;' + 
-				  'marker-multi-policy: largest;' + 
+				  'marker-line-width: 1.5;' +
+				  'marker-line-opacity: 0.4;' +
+				  'marker-fill-opacity: 0.8;' +
+				  'marker-comp-op: multiply;' +
+				  'marker-type: ellipse;' +
+				  'marker-placement: point;' +
+				  'marker-allow-overlap: true;' +
+				  'marker-clip: false;' +
+				  'marker-multi-policy: largest;' +
 				'}#humanitarian_response [cartodb_id=' + data.cartodb_id +']{' +
 				  'marker-fill: #000000;' +
 				  'marker-width: 16;' +
 				  'marker-line-color: #FFF;' +
-				  'marker-line-width: 1.5;' + 
-				  'marker-line-opacity: 1;' + 
-				  'marker-fill-opacity: 1;' + 
+				  'marker-line-width: 1.5;' +
+				  'marker-line-opacity: 1;' +
+				  'marker-fill-opacity: 1;' +
 				'}');
-				
+
 				// custom infowindow controls
 				//if ($("#custom-infowindow").width() == 0) {
 					$("#close-window").css({'display':'block'});
@@ -311,34 +310,34 @@
 					$("div#wrapper").css({'display':'block'});
 					$("#custom-infowindow").css({padding: 20});
 				//}
-				
+
 				// clears the previous infowindow after each click
 				$("div#wrapper").empty();
-				
+
 				// gets the coordinates for overlapping points, joins the filtered search
-				getpoints_sql = "SELECT hr1.* FROM humanitarian_response hr1 " 
-				+" INNER JOIN (" + query + ") hr2 ON hr1.cartodb_id = hr2.cartodb_id" 
+				getpoints_sql = "SELECT hr1.* FROM humanitarian_response hr1 "
+				+" INNER JOIN (" + query + ") hr2 ON hr1.cartodb_id = hr2.cartodb_id"
 				+" WHERE hr1.the_geom_webmercator IN ( SELECT the_geom_webmercator FROM humanitarian_response WHERE cartodb_id = " + data.cartodb_id + ")";
 				getpoints_sql = encodeURI(getpoints_sql);
-				
+
 				$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q='+getpoints_sql, function(data) {
 				  $.each(data.rows, function(key, val) {
-				  	
+
 				  	// appends the infowindos
 				  	$("div#wrapper").append(infowindowtemplate);
-				  	
+
 				  	// assigns cartodb_id as the div id
 				  	$('div#wrapper div.item').last().attr('id', val.cartodb_id);
-				  	
+
 				  	// assessment title
 					$(".header h1").last().text(val.label);
-					
+
 					// assessment id
 					$("span.idnumber").last().text("#" + val.id);
-					
+
 					// status
 					$("span.status_content").last().text(val.status);
-					
+
 					// location
 					if (val.location_label == 'null') {
 						locationlabel = val.country + " (entire country)";
@@ -347,7 +346,7 @@
 						locationlabel = val.location_label + ", " + val.country;
 					}
 					$(".location span.main_location").last().text(locationlabel);
-					
+
 					// other location
 					if (val.other_location == "None" || val.other_location == "") {
 						$("span.other_locations").last().css({"display":"none"});
@@ -356,7 +355,7 @@
 						$("span.other_locations").last().css({"display":"inline"});
 						$("span.other_locations span.other_location_content").last().text("Other Locations: " + val.other_location);
 					}
-					
+
 					// cluster label
 					if (val.cluster_label == 'null' || val.cluster_label == '') {
 						clusterlabel = "Other";
@@ -365,7 +364,7 @@
 						clusterlabel = val.cluster_label;
 					}
 					$("span.clusters_content").last().last().text(clusterlabel);
-					
+
 					// org label
 					if (val.org_label == 'null') {
 						$("p.organizations").last().css({"display":"none"});
@@ -374,7 +373,7 @@
 						$("p.organizations").last().css({"display":"block"});
 						$("span.orgname_content").last().text(val.org_label);
 					}
-					
+
 					// date
 					startdate = new Date(val.date_start_text.substring(0,10));
 					enddate = new Date(val.date_end_text.substring(0,10));
@@ -382,10 +381,10 @@
 					$("span.date_content").last().html(function(index, addbreak) {
 					    return addbreak.replace('End: ', '<br />End: ');
 					});
-					
+
 					// assessment link
 					$("div.viewassessment").last().html('<a href=\"' + val.assessment_url + '\" target=\"_blank\">Visit Assessment Page</a>');
-					
+
 					//subject
 					if (data.subject == 'null' || val.subject == 'None') {
 						$("p.subject").last().css({"display":"none"});
@@ -394,7 +393,7 @@
 						$("p.subject").last().css({"display":"block"});
 						$("span.subject_content").last().text(val.subject);
 					}
-					
+
 					//methodology
 					if (val.methodology == 'null' || val.methodology == 'None') {
 						$("p.methodology").last().css({"display":"none"});
@@ -403,7 +402,7 @@
 						$("p.methodology").last().css({"display":"block"});
 						$("span.methodology_content").last().text(val.methodology);
 					}
-					
+
 					//key findings
 					if (val.key_findings == 'null' || val.key_findings == 'None') {
 						$("p.key_findings").last().css({"display":"none"});
@@ -412,7 +411,7 @@
 						$("p.key_findings").last().css({"display":"block"});
 						$("span.key_findings_content").last().text(val.key_findings);
 					}
-					
+
 					//report
 					if (val.report_url == 'null') {
 						$("p.report").last().css({"display":"none"});
@@ -421,7 +420,7 @@
 						$("p.report").last().css({"display":"block"});
 						$("span.viewreport").last().html('<a href=\"' + val.report_url + '\" target=\"_blank\">Download</a>');
 					}
-					
+
 					//questionnaire
 					if (val.questionnaire_url == 'null') {
 						$("p.questionnaire").last().css({"display":"none"});
@@ -430,7 +429,7 @@
 						$("p.questionnaire").last().css({"display":"block"});
 						$("span.viewquestionnaire").last().html('<a href=\"' + val.questionnaire_url + '\" target=\"_blank\">Download</a>');
 					}
-					
+
 					//other data
 					if (val.data_upload_url == 'null') {
 						$("p.other_data").last().css({"display":"none"});
@@ -439,8 +438,8 @@
 						$("p.other_data").last().css({"display":"block"});
 						$("span.viewother_data").last().html('<a href=\"' + val.data_upload_url + '\" target=\"_blank\">Download</a>');
 					}
-				  	
-				  	
+
+
 				  });
 				});
 				//end custom infowindow controls
@@ -456,10 +455,10 @@
   		.error(function(e) {
         	console.log(e);
     	});
-    	
-    	
+
+
     //// filter controls
-    	
+
     	// global vars
     	var today = new Date();
         var yesterday = today.toISOString(today.setDate(today.getDate() - 1));
@@ -467,7 +466,7 @@
         var twoweeks = today.toISOString(today.setDate(today.getDate() - 14));
         var thirtydays = today.toISOString(today.setDate(today.getDate() - 30));
         var nintydays = today.toISOString(today.setDate(today.getDate() - 90));
-    	
+
     	// creates the SQL statements that filters use
     	function runQuery(){
     		var country_name = $('#countrynames').val();
@@ -493,16 +492,16 @@
     			the_dates = "clear";
     		}
     		var dateName = the_dates != "clear" ? " date_start > \'" + the_dates + "\'" : '';
-			
+
 			// used in the multi filter query
             selectArray = [countryName,clusterName,organizationName,dateName];
             select = selectArray.filter(Boolean).join(" AND ");
-    		
+
     		// runs the query
     		query = "SELECT * FROM humanitarian_response WHERE " + select;
     		sublayer.setSQL(query);
     		console.log(query);
-    		
+
     		// counts the number of assessments depending on the filter results
     		var count = "SELECT COUNT(Distinct(id)) FROM humanitarian_response WHERE " + select;
     		count = encodeURI(count);
@@ -516,19 +515,16 @@
 			    $("#thecount").val('# of Assessments: ' + the_count);
 			  });
 			});
-			
+
     	} // end runQuery
-    	
-    	// filter change functions    	
+
+    	// filter change functions
     	$("#countrynames").change(function () {
-    		if($("#multiquery").prop('checked') == false) {
-	            resetForms("country");	
-    		}
     		runQuery();
     		infowindowReset();
-    		
+
     		var country_name = $(this).val(); // defines country name as selected option
-    		
+
     		// redefines the country names in special cases to match the #ne_10m_admin_0_countries admin names
     		if (country_name == "Congo, The Democratic Republic of the") {
     			country_name = "Democratic Republic of the Congo";
@@ -539,10 +535,10 @@
     		if (country_name == "Syrian Arab Republic") {
     			country_name = "Syria";
     		}
-    		
+
     		// SQL statement to get the country bounds
     		var country_bounds = "SELECT * FROM ne_10m_admin_0_countries WHERE admin = \'" + country_name + '\'';
-    		
+
     		// sets the CartoCSS to make the outline visible
     		sublayer2.setCartoCSS('#ne_10m_admin_0_countries [admin = \'' + country_name + '\'] {' +
 				  'polygon-opacity: 0;' +
@@ -551,7 +547,7 @@
 				  'line-opacity: 1;' +
 				'}'
 			);
-			
+
 			// *special case for Somalia --- shows both Somalia and Somaliland which are treated as separate in #ne_10m_admin_0_countries
 			if (country_name == "Somalia") {
     			sublayer2.setCartoCSS('#ne_10m_admin_0_countries [admin = \'Somalia\'], #ne_10m_admin_0_countries [admin = \'Somaliland\']{' +
@@ -559,20 +555,17 @@
 					  'line-color: #000000;' +
 					  'line-width: 1;' +
 					  'line-opacity: 1;' +
-					'}' 
+					'}'
 				);
     		}
-		
+
             sql.getBounds(country_bounds).done(function(bounds) { // resets the map bounds to the country outlines to prevent too close zoom extent
 				latlon = bounds[0];
                 map.fitBounds(bounds);
 			});
         });
-    
+
         $("#clusternames").change(function () {
-    		if($("#multiquery").prop('checked') == false) {
-            	resetForms("cluster");
-    		}
     		runQuery();
     		infowindowReset();
     		resetcountryoutline();
@@ -581,14 +574,11 @@
                 map.fitBounds(bounds);
 			});
         });
-        
+
         $('#organization').keypress(function(event) {
         	if (event.keyCode == 13){
         		organization = $(this).val();
         		event.preventDefault();
-    			if($("#multiquery").prop('checked') == false) {
-	            	resetForms("org");
-            	}
             	runQuery();
             	infowindowReset();
             	resetcountryoutline();
@@ -598,14 +588,11 @@
 				});
 	        }
 	    });
-	    
+
 	    $("#datechange").change(function () {
          	$("#datechange option:selected").each(function() {
          		the_dates = eval($(this).val());
          	});
-    		if($("#multiquery").prop('checked') == false) {
-	         	resetForms("date");
-	       	}
 	       	runQuery();
 	       	infowindowReset();
 	       	resetcountryoutline();
@@ -614,7 +601,7 @@
                 map.fitBounds(bounds);
 			});
         });
-        
+
         $("#download").change(function () {
         	$("#download option:selected").each(function() {
          		fileformat = $(this).val();
@@ -623,7 +610,7 @@
     		window.location.href = download_data;
             $('#download').val("clear");
         });
-	    
+
 	    // reset functions
 	    function reset() {
 			resetForms('');
@@ -633,42 +620,20 @@
 				latlon = bounds[0];
 	            map.fitBounds(bounds);
 			});
-			
+
 			// closes the infowindow on reset
 			infowindowReset();
 			resetcountryoutline();
     	}
-    	
+
     	// resets the form values
     	function resetForms(notClear){
-    		if (notClear == "country"){
-    			$('#clusternames').val("clear");
-    			$('#datechange').val("clear");
-    			$('#organization').val('');  
-    		}
-    		else if (notClear == "cluster"){
-    			$('#countrynames').val("clear");
-    			$('#datechange').val("clear");
-    			$('#organization').val('');
-    		}
-    		else if (notClear == "date"){
-    			$('#clusternames').val("clear");
-    			$('#countrynames').val("clear");
-    			$('#organization').val('');
-    		}
-    		else if (notClear == "org"){
-    			$('#clusternames').val("clear");
-    			$('#datechange').val("clear");
-    			$('#countrynames').val("clear");
-    		}
-    		else {
-    			$('#clusternames').val("clear");
-    			$('#countrynames').val("clear");
-    			$('#datechange').val("clear");
-    			$('#organization').val('');
-    		}
+        $('#clusternames').val("clear");
+        $('#countrynames').val("clear");
+        $('#datechange').val("clear");
+        $('#organization').val('');
     	}
-    	
+
     	// resets the infowindows
     	function infowindowReset() {
     		$("#close-window").css({'display':'none'});
@@ -677,7 +642,7 @@
 			$("div#wrapper").animate({opacity:0}, {duration: 200});
 			$("div#wrapper").css({'display':'none'});
     	}
-    	
+
     	// resets the country outlines
     	function resetcountryoutline() {
     		var country_outline = 'SELECT * FROM humanitarian_response';
@@ -689,29 +654,17 @@
 				'}'
 			);
     	}
-    	
+
     	$("#reset").click(function () {
     		reset(); //runs the reset function on click
     		getmastercount(); //resets the total count to all
     	});
-    	
-    	// multi-query toggle functions
-		$('#multiquery').change(function () {
-			reset(); //runs the reset function
-			getmastercount(); //resets the total count to all
-    		if ($('#multiquery').is(':checked')) {
-    			alert("You are enabling multi-filters. You can now search more than one filter at a time.");
-    		}
-    		else {
-    			alert("You are turning off multiple filters. You will only be able to search one filter at a time.");
-    		}
-    	});
-    	
+
       } //end function main
 
       // you could use $(window).load(main);
-      window.onload = main; 
-      
+      window.onload = main;
+
       // infowindow display functions on load
 		$("#close-window").click(function () {
 			$(this).css({'display':'none'});
@@ -722,6 +675,6 @@
 		});
 
     </script>
- 
+
   </body>
 </html>
