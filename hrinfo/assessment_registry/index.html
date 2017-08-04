@@ -190,7 +190,7 @@
 		}
 
 		function getCountries() {
-			$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT Distinct(country) FROM humanitarian_response ORDER BY -country', function(data) {
+			$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT Distinct(country) FROM humanitarian_response ORDER BY country', function(data) {
                                 $.each(data.rows, function(key, val) {
                                 	$("#countrynames").append('<option value="' + val.country + '">' + val.country + '</option>');
                                 });
