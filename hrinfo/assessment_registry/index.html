@@ -106,42 +106,6 @@
         	<h3>Filter by Country</h3>
     		<select id="countrynames">
     			<option selected disabled value="clear">Select a Country</option>
-    			<option value="Afghanistan">Afghanistan</option>
-    			<option value="Burkina Faso">Burkina Faso</option>
-    			<option value="Cameroon">Cameroon</option>
-    			<option value="Central African Republic">Central African Republic</option>
-    			<option value="Chad">Chad</option>
-    			<option value="Colombia">Colombia</option>
-    			<option value="Congo, The Democratic Republic of the">Congo, The Democratic Republic of the</option>
-    			<option value="Egypt">Egypt</option>
-    			<option value="Ethiopia">Ethiopia</option>
-    			<option value="Haiti">Haiti</option>
-    			<option value="Iraq">Iraq</option>
-    			<option value="Jordan">Jordan</option>
-    			<option value="Kenya">Kenya</option>
-    			<option value="Lebanon">Lebanon</option>
-    			<option value="Liberia">Liberia</option>
-    			<option value="Mali">Mali</option>
-    			<option value="Mauritania">Mauritania	</option>
-    			<option value="Nepal">Nepal</option>
-    			<option value="Nigeria">Nigeria</option>
-    			<option value="occupied Palestinian territory">occupied Palestinian territory</option>
-    			<option value="Pakistan">Pakistan</option>
-    			<option value="Philippines">Philippines</option>
-    			<option value="Senegal">Senegal</option>
-    			<option value="Sierra Leone">Sierra Leone</option>
-    			<option value="Solomon Islands">Solomon Islands</option>
-    			<option value="Somalia">Somalia</option>
-    			<option value="South Sudan">South Sudan</option>
-    			<option value="Sudan">Sudan</option>
-    			<option value="Syrian Arab Republic">Syrian Arab Republic</option>
-    			<option value="Tonga">Tonga</option>
-    			<option value="Turkey">Turkey</option>
-    			<option value="Uganda">Uganda</option>
-    			<option value="Ukraine">Ukraine</option>
-    			<option value="Vanuatu">Vanuatu</option>
-    			<option value="Yemen">Yemen</option>
-    			<option value="Zimbabwe">Zimbabwe</option>
     		</select>
         	<h3>Filter by Global Cluster</h3>
     		<select id="clusternames">
@@ -225,6 +189,14 @@
 			});
 		}
 
+		function getCountries() {
+			$.getJSON('https://' + cartodb_user + '.cartodb.com/api/v2/sql/?q=SELECT Distinct(country) FROM humanitarian_response ORDER BY -country', function(data) {
+                                $.each(data.rows, function(key, val) {
+                                	$("#countrynames").append('<option value="' + val.country + '">' + val.country + '</option>');
+                                });
+                        });
+		}
+
         // add cartodb layer
         cartodb.createLayer(map, vizjson, {
         	cartodb_logo:false,
@@ -244,7 +216,8 @@
 
         	// Adds the counter in the top left corner. enters the total number of items on load
         	$("#thecount").prop('disabled', true);
-			getmastercount();
+		getmastercount();
+		getCountries();
 
         	// adds the cartodb search bar to the top right
         	var searchbar = cdb.vis.Overlay.create('search', map.viz, {});
